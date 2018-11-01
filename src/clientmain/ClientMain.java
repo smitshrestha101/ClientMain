@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -42,22 +44,63 @@ public class ClientMain {
                 switch (option) {
                     case "1":
                         boolean validate = false;
+                        String idpw="";
                         while (!validate) {
 
                             System.out.println(dis.readUTF());
-                            String idpw = scan.nextLine();
+                            idpw = scan.nextLine();
 
-                            String[] fullIdPw = idpw.split("*");
+                            String[] fullIdPw = idpw.split("\\*");
                             String id = fullIdPw[0];
                             String pw = fullIdPw[1];
+                            System.out.println(id +"  "+ pw);
                             
+                            String idRegex="[a-zA-Z0-9]";
+                            Pattern pat1=Pattern.compile(idRegex);
+                            Matcher match1=pat1.matcher(id);
                             
+                            String pwRegex="[a-zA-Z0-9!#%$]";
+                            Pattern pat2=Pattern.compile(pwRegex);
+                            Matcher match2=pat2.matcher(pw);
+                            
+                            if(match1.find()){
+                                System.out.println("true");
+                         
+                                  
+                                if(match2.find()){
+                                    System.out.println("true");
+                                validate=true;
+                               
+                                
+                                }else{
+                                     System.out.println("Password should be alphanumeric charaters or !,#,$,%");
+                                }
+                                
+                              
+                            }else{
+                                System.out.println("Id should be only alphanumeric charaters!");
+                            }
+                            
+                         
 
                         }
+                        dos.writeUTF(idpw);
+                    
+                    case "2":
+                        
+                        
+                        
+            
 
                 }
+                sock.close();
+                        dis.close();
+                        dos.close();
 
             }
+            
+            
+          
         } catch (Exception e) {
             e.printStackTrace();
         }
