@@ -37,12 +37,14 @@ public class ClientMain {
             DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
 
             while (true) {
+                System.out.println("first");
                 System.out.println(dis.readUTF());
                 String option = scan.nextLine();
                 dos.writeUTF(option);
 
                 switch (option) {
                     case "1":
+                        System.out.println("second");
                         boolean validate = false;
                         String idpw="";
                         while (!validate) {
@@ -87,17 +89,26 @@ public class ClientMain {
                         dos.writeUTF(idpw);
                     
                     case "2":
+                        System.out.println("third");
+                        System.out.println(dis.readUTF());
+                        String id=scan.nextLine();
+                        dos.writeUTF(id);
                         
+                        System.out.println(dis.readUTF());
+                        String pw=scan.nextLine();
+                        dos.writeUTF(pw);
                         
+                        System.out.println(dis.readUTF());
+                        System.out.println(dis.readUTF());
+                        System.out.println(dis.readUTF());
+                        String choice=scan.nextLine();
+                        dos.writeUTF(choice);
                         
-            
 
                 }
-                sock.close();
-                        dis.close();
-                        dos.close();
+               
 
-            }
+           }
             
             
           
