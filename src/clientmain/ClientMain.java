@@ -35,16 +35,17 @@ public class ClientMain {
 
             DataInputStream dis = new DataInputStream(sock.getInputStream());
             DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
-
-            while (true) {
-                System.out.println("first");
+            boolean loop=true;
+           
+            while (loop) {
+                //System.out.println("first");
                 System.out.println(dis.readUTF());
                 String option = scan.nextLine();
                 dos.writeUTF(option);
 
                 switch (option) {
                     case "1":
-                        System.out.println("second");
+                        //System.out.println("second");
                         boolean validate = false;
                         String idpw="";
                         while (!validate) {
@@ -87,9 +88,45 @@ public class ClientMain {
 
                         }
                         dos.writeUTF(idpw);
+                        
+                        System.out.println(dis.readUTF());
+                        System.out.println(dis.readUTF());
+                        System.out.println(dis.readUTF());
+                        String choice=scan.nextLine();
+                        dos.writeUTF(choice);
+                        
+                        switch (choice){
+                            case "1":
+                                System.out.println(dis.readUTF());
+                                String fileName=scan.nextLine();
+                                dos.writeUTF(fileName);
+                                System.out.println(dis.readUTF());
+                                System.out.println(dis.readUTF());
+                                loop=false;
+                                break;
+                            case "2":
+                                System.out.println(dis.readUTF());
+                                String contents=scan.nextLine();
+                                dos.writeUTF(contents);
+                                loop=false;
+                                break;
+                            case "3":
+                                System.out.println(dis.readUTF());
+                                loop=false;
+                                break;
+                            case "4":
+                                sock.close();
+                                loop=false;
+                                break;
+                            default:
+                                break;
+                        }
                     
+                        break;
+                        
+                                            
                     case "2":
-                        System.out.println("third");
+                        //System.out.println("third");
                         System.out.println(dis.readUTF());
                         String id=scan.nextLine();
                         dos.writeUTF(id);
@@ -101,14 +138,51 @@ public class ClientMain {
                         System.out.println(dis.readUTF());
                         System.out.println(dis.readUTF());
                         System.out.println(dis.readUTF());
-                        String choice=scan.nextLine();
+                        choice=scan.nextLine();
                         dos.writeUTF(choice);
                         
-
+                        switch (choice){
+                            case "1":
+                                System.out.println(dis.readUTF());
+                                String fileName=scan.nextLine();
+                                dos.writeUTF(fileName);
+                                System.out.println(dis.readUTF());
+                                System.out.println(dis.readUTF());
+                                loop=false;
+                                break;
+                            case "2":
+                                System.out.println(dis.readUTF());
+                                String contents=scan.nextLine();
+                                dos.writeUTF(contents);
+                                loop=false;
+                                break;
+                            case "3":
+                                System.out.println(dis.readUTF());
+                                loop=false;
+                                break;
+                            case "4":
+                                sock.close();
+                                loop=false;
+                                break;
+                            default:
+                                break;
+                        }
+                    
+                        break;
+                    
+                    case "3":
+                        sock.close();
+                        loop=false;
+                        break;
+                    default:
+                        break;
+     
                 }
-               
 
            }
+            
+            dis.close();
+            dos.close();
             
             
           
