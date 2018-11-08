@@ -8,11 +8,8 @@ package clientmain;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,45 +21,54 @@ public class ClientMain {
 
     public static void main(String[] args) throws IOException {
         Socket sock = null;
+         DataInputStream dis = null;
+         DataOutputStream dos = null;
         try {
+
             Scanner scan = new Scanner(System.in);
+            while (true) {
+                System.out.println("Enter IP: ");
+                String ip = scan.next();
 
-            System.out.println("Enter IP: ");
-            String ip = scan.nextLine();
+                System.out.println("Enter port number: ");
+                int port = scan.nextInt();
 
-            System.out.println("Enter port number: ");
-            int port = scan.nextInt();
+                sock = new Socket(ip, port);
+                dis = new DataInputStream(sock.getInputStream());
+                dos = new DataOutputStream(sock.getOutputStream());
+                String read=dis.readUTF();
+                if (read.equals("READY")){
+                    break;
+                }
+            }
 
-            //InetAddress ip=InetAddress.getByName("localhost");
-            sock = new Socket(ip, port);
-
-            DataInputStream dis = new DataInputStream(sock.getInputStream());
-            DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
+            
             boolean loop = true;
 
             while (loop) {
-                //System.out.println("first");
+               
                 System.out.println(dis.readUTF());
+                
                 String option = scan.nextLine();
                 dos.writeUTF(option);
 
                 switch (option) {
-                    case "1":
-                        //System.out.println("second");
+                    case "1":                                                   //NEW USER
+
                         if (dis.readUTF().equals("READY")) {
                             String value = "CREATEFAILED";
                             while (value.equals("CREATEFAILED")) {
                                 boolean validate = false;
                                 String idpw = "";
                                 while (!validate) {
-
+                                                                                    //VALIDATE ID AND PASSWORD FOR ALPHANUMERIC CHARACTERS
                                     System.out.println(dis.readUTF());
                                     idpw = scan.nextLine();
 
                                     String[] fullIdPw = idpw.split("\\*");
                                     String id = fullIdPw[0];
                                     String pw = fullIdPw[1];
-                                    System.out.println(id + "  " + pw);
+                                    //System.out.println(id + "  " + pw);
 
                                     String idRegex = "[a-zA-Z0-9]";
                                     Pattern pat1 = Pattern.compile(idRegex);
@@ -73,10 +79,10 @@ public class ClientMain {
                                     Matcher match2 = pat2.matcher(pw);
 
                                     if (match1.find()) {
-                                        System.out.println("true");
+                                       // System.out.println("true");
 
                                         if (match2.find()) {
-                                            System.out.println("true");
+                                           // System.out.println("true");
                                             validate = true;
 
                                         } else {
@@ -104,7 +110,7 @@ public class ClientMain {
                                 dos.writeUTF(choice);
 
                                 switch (choice) {
-                                    case "1":
+                                    case "1":                                   //DOWNLOAD 
                                         System.out.println(dis.readUTF());
                                         String fileName = scan.nextLine();
                                         dos.writeUTF(fileName);
@@ -113,20 +119,21 @@ public class ClientMain {
                                             dos.writeUTF("READY");
                                             System.out.println(dis.readUTF());
                                             dos.writeUTF("DOWNLOADCOMPLETED");
-                                            down = true;
+                                            //down = true;
                                         } else {
-                                            down = true;
+                                            
+                                           // down = true;
                                         }
 
                                         break;
-                                    case "2":
+                                    case "2":                                   //UPLOAD
                                         if (dis.readUTF().equals("READY")) {
                                             System.out.println(dis.readUTF());
                                             String fileName1 = scan.nextLine();
                                             if (fileName1 != null) {
 
                                                 dos.writeUTF(fileName1);
-                                                //fileName1 = scan.nextLine();
+
                                                 if (dis.readUTF().equals("CONTINUE")) {
                                                     System.out.println(dis.readUTF());
                                                     String contents = scan.nextLine();
@@ -138,13 +145,14 @@ public class ClientMain {
                                             }
                                         }
                                         break;
-                                    case "3":
+                                    case "3":                                   //FILE LIST
                                         System.out.println(dis.readUTF());
 
                                         break;
-                                    case "4":
+                                    case "4":                                   //DISCONNECT
                                         sock.close();
                                         loop = false;
+                                        down = false;
                                         break;
                                     default:
                                         break;
@@ -152,13 +160,14 @@ public class ClientMain {
 
                             }
                         }
+                        break;
 
-                    case "2":
+                    case "2":                                                   //EXISTING USER
                         int trial = 0;
                         String login = "LOGINERROR";
-                        //System.out.println("third");
+
                         if (dis.readUTF().equals("READY")) {
-                            while (trial < 3 && login.equals("LOGINERROR")) {
+                            while (trial < 3 && login.equals("LOGINERROR")) {   //LIMIT NUMBER OF TRIALS FOR ENTERING ID AND PASSWORD
                                 System.out.println(dis.readUTF());
 
                                 String idpw = scan.nextLine();
@@ -168,13 +177,11 @@ public class ClientMain {
 
                             }
                             if (trial > 2) {
-                                //terminate(sock,loop);
+
                                 break;
                             } else {
-//                        System.out.println(dis.readUTF());
-//                        String pw=scan.nextLine();
-//                        dos.writeUTF(pw);
-//                        //file access phase:
+
+                                //file access phase:
                                 boolean down = true;
                                 while (down) {
                                     System.out.println(dis.readUTF());
@@ -192,9 +199,10 @@ public class ClientMain {
                                                 dos.writeUTF("READY");
                                                 System.out.println(dis.readUTF());
                                                 dos.writeUTF("DOWNLOADCOMPLETED");
-                                                down = true;
+                                                //down = true;
                                             } else {
-                                                down = true;
+                                                //System.out.println(dis.readUTF());
+                                                //down = true;
                                             }
 
                                             break;
@@ -205,7 +213,7 @@ public class ClientMain {
                                                 if (fileName1 != null) {
 
                                                     dos.writeUTF(fileName1);
-                                                    //fileName1 = scan.nextLine();
+
                                                     if (dis.readUTF().equals("CONTINUE")) {
                                                         System.out.println(dis.readUTF());
                                                         String contents = scan.nextLine();
@@ -219,12 +227,12 @@ public class ClientMain {
                                             break;
                                         case "3":
                                             System.out.println(dis.readUTF());
-                                            dos.writeUTF("SUCCESSFUL");   
+                                            dos.writeUTF("SUCCESSFUL");
                                             break;
                                         case "4":
                                             sock.close();
                                             loop = false;
-                                            down=false;
+                                            down = false;
                                             break;
                                         default:
                                             break;
@@ -246,20 +254,11 @@ public class ClientMain {
 
             }
 
-            //dis.close();
-            //dos.close();
         } catch (Exception e) {
             sock.close();
             e.printStackTrace();
         }
 
     }
-    
-    public static void terminate(Socket sock,boolean loop) throws IOException{
-       
-            sock.close();
-            loop=false;
-     
-    
 
-}}
+}
