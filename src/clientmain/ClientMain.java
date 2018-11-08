@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -116,21 +118,29 @@ public class ClientMain {
                                             down = true;
                                         }
 
-                                        
                                         break;
                                     case "2":
-                                        System.out.println(dis.readUTF());
-                                        String contents = scan.nextLine();
-                                        while (contents != null) {
+                                        if (dis.readUTF().equals("READY")) {
+                                            System.out.println(dis.readUTF());
+                                            String fileName1 = scan.nextLine();
+                                            if (fileName1 != null) {
 
-                                            dos.writeUTF(contents);
-                                            contents = scan.nextLine();
+                                                dos.writeUTF(fileName1);
+                                                //fileName1 = scan.nextLine();
+                                                if (dis.readUTF().equals("CONTINUE")) {
+                                                    System.out.println(dis.readUTF());
+                                                    String contents = scan.nextLine();
+                                                    dos.writeUTF(contents);
+                                                }
+
+                                            } else {
+                                                dos.writeUTF("ERROR");
+                                            }
                                         }
-                                      
                                         break;
                                     case "3":
                                         System.out.println(dis.readUTF());
-                                       
+
                                         break;
                                     case "4":
                                         sock.close();
@@ -158,7 +168,8 @@ public class ClientMain {
 
                             }
                             if (trial > 2) {
-                                System.out.println("Terminate");
+                                //terminate(sock,loop);
+                                break;
                             } else {
 //                        System.out.println(dis.readUTF());
 //                        String pw=scan.nextLine();
@@ -188,31 +199,41 @@ public class ClientMain {
 
                                             break;
                                         case "2":
-                                            System.out.println(dis.readUTF());
-                                            String contents = scan.nextLine();
-                                            while (contents != null) {
+                                            if (dis.readUTF().equals("READY")) {
+                                                System.out.println(dis.readUTF());
+                                                String fileName1 = scan.nextLine();
+                                                if (fileName1 != null) {
 
-                                                dos.writeUTF(contents);
-                                                contents = scan.nextLine();
+                                                    dos.writeUTF(fileName1);
+                                                    //fileName1 = scan.nextLine();
+                                                    if (dis.readUTF().equals("CONTINUE")) {
+                                                        System.out.println(dis.readUTF());
+                                                        String contents = scan.nextLine();
+                                                        dos.writeUTF(contents);
+                                                    }
+
+                                                } else {
+                                                    dos.writeUTF("ERROR");
+                                                }
                                             }
-                                          
                                             break;
                                         case "3":
                                             System.out.println(dis.readUTF());
-                                          
+                                            dos.writeUTF("SUCCESSFUL");   
                                             break;
                                         case "4":
                                             sock.close();
                                             loop = false;
+                                            down=false;
                                             break;
                                         default:
                                             break;
                                     }
 
-                                    
                                 }
                             }
                         }
+                        break;
 
                     case "3":
                         sock.close();
@@ -233,5 +254,12 @@ public class ClientMain {
         }
 
     }
+    
+    public static void terminate(Socket sock,boolean loop) throws IOException{
+       
+            sock.close();
+            loop=false;
+     
+    
 
-}
+}}
