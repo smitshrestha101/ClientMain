@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 public class ClientMain {
 
     public static void main(String[] args) throws IOException {
+        Socket sock = null;
         try {
             Scanner scan = new Scanner(System.in);
 
@@ -31,12 +32,12 @@ public class ClientMain {
             int port = scan.nextInt();
 
             //InetAddress ip=InetAddress.getByName("localhost");
-            Socket sock = new Socket(ip, port);
+            sock = new Socket(ip, port);
 
             DataInputStream dis = new DataInputStream(sock.getInputStream());
             DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
-            boolean loop=true;
-           
+            boolean loop = true;
+
             while (loop) {
                 //System.out.println("first");
                 System.out.println(dis.readUTF());
@@ -46,147 +47,188 @@ public class ClientMain {
                 switch (option) {
                     case "1":
                         //System.out.println("second");
-                        boolean validate = false;
-                        String idpw="";
-                        while (!validate) {
+                        if (dis.readUTF().equals("READY")) {
+                            String value = "CREATEFAILED";
+                            while (value.equals("CREATEFAILED")) {
+                                boolean validate = false;
+                                String idpw = "";
+                                while (!validate) {
 
-                            System.out.println(dis.readUTF());
-                            idpw = scan.nextLine();
+                                    System.out.println(dis.readUTF());
+                                    idpw = scan.nextLine();
 
-                            String[] fullIdPw = idpw.split("\\*");
-                            String id = fullIdPw[0];
-                            String pw = fullIdPw[1];
-                            System.out.println(id +"  "+ pw);
-                            
-                            String idRegex="[a-zA-Z0-9]";
-                            Pattern pat1=Pattern.compile(idRegex);
-                            Matcher match1=pat1.matcher(id);
-                            
-                            String pwRegex="[a-zA-Z0-9!#%$]";
-                            Pattern pat2=Pattern.compile(pwRegex);
-                            Matcher match2=pat2.matcher(pw);
-                            
-                            if(match1.find()){
-                                System.out.println("true");
-                         
-                                  
-                                if(match2.find()){
-                                    System.out.println("true");
-                                validate=true;
-                               
-                                
-                                }else{
-                                     System.out.println("Password should be alphanumeric charaters or !,#,$,%");
+                                    String[] fullIdPw = idpw.split("\\*");
+                                    String id = fullIdPw[0];
+                                    String pw = fullIdPw[1];
+                                    System.out.println(id + "  " + pw);
+
+                                    String idRegex = "[a-zA-Z0-9]";
+                                    Pattern pat1 = Pattern.compile(idRegex);
+                                    Matcher match1 = pat1.matcher(id);
+
+                                    String pwRegex = "[a-zA-Z0-9!#%$]";
+                                    Pattern pat2 = Pattern.compile(pwRegex);
+                                    Matcher match2 = pat2.matcher(pw);
+
+                                    if (match1.find()) {
+                                        System.out.println("true");
+
+                                        if (match2.find()) {
+                                            System.out.println("true");
+                                            validate = true;
+
+                                        } else {
+                                            System.out.println("Password should be alphanumeric charaters or !,#,$,%");
+                                        }
+
+                                    } else {
+                                        System.out.println("Id should be only alphanumeric charaters!");
+                                    }
+
                                 }
-                                
-                              
-                            }else{
-                                System.out.println("Id should be only alphanumeric charaters!");
-                            }
-                            
-                         
 
+                                dos.writeUTF(idpw);
+                                value = dis.readUTF();
+                                if (value.equals("CREATEFAILED")) {
+                                    System.out.println(value);
+                                }
+                            }
+                            //file access phase:
+                            boolean down = true;
+                            while (down) {
+                                System.out.println(dis.readUTF());
+
+                                String choice = scan.nextLine();
+                                dos.writeUTF(choice);
+
+                                switch (choice) {
+                                    case "1":
+                                        System.out.println(dis.readUTF());
+                                        String fileName = scan.nextLine();
+                                        dos.writeUTF(fileName);
+
+                                        if (dis.readUTF().equals("FOUND")) {
+                                            dos.writeUTF("READY");
+                                            System.out.println(dis.readUTF());
+                                            dos.writeUTF("DOWNLOADCOMPLETED");
+                                            down = true;
+                                        } else {
+                                            down = true;
+                                        }
+
+                                        
+                                        break;
+                                    case "2":
+                                        System.out.println(dis.readUTF());
+                                        String contents = scan.nextLine();
+                                        while (contents != null) {
+
+                                            dos.writeUTF(contents);
+                                            contents = scan.nextLine();
+                                        }
+                                      
+                                        break;
+                                    case "3":
+                                        System.out.println(dis.readUTF());
+                                       
+                                        break;
+                                    case "4":
+                                        sock.close();
+                                        loop = false;
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                            }
                         }
-                        dos.writeUTF(idpw);
-                        
-                        System.out.println(dis.readUTF());
-                        System.out.println(dis.readUTF());
-                        System.out.println(dis.readUTF());
-                        String choice=scan.nextLine();
-                        dos.writeUTF(choice);
-                        
-                        switch (choice){
-                            case "1":
-                                System.out.println(dis.readUTF());
-                                String fileName=scan.nextLine();
-                                dos.writeUTF(fileName);
-                                System.out.println(dis.readUTF());
-                                System.out.println(dis.readUTF());
-                                loop=false;
-                                break;
-                            case "2":
-                                System.out.println(dis.readUTF());
-                                String contents=scan.nextLine();
-                                dos.writeUTF(contents);
-                                loop=false;
-                                break;
-                            case "3":
-                                System.out.println(dis.readUTF());
-                                loop=false;
-                                break;
-                            case "4":
-                                sock.close();
-                                loop=false;
-                                break;
-                            default:
-                                break;
-                        }
-                    
-                        break;
-                        
-                                            
+
                     case "2":
+                        int trial = 0;
+                        String login = "LOGINERROR";
                         //System.out.println("third");
-                        System.out.println(dis.readUTF());
-                        String id=scan.nextLine();
-                        dos.writeUTF(id);
-                        
-                        System.out.println(dis.readUTF());
-                        String pw=scan.nextLine();
-                        dos.writeUTF(pw);
-                        
-                        System.out.println(dis.readUTF());
-                        System.out.println(dis.readUTF());
-                        System.out.println(dis.readUTF());
-                        choice=scan.nextLine();
-                        dos.writeUTF(choice);
-                        
-                        switch (choice){
-                            case "1":
+                        if (dis.readUTF().equals("READY")) {
+                            while (trial < 3 && login.equals("LOGINERROR")) {
                                 System.out.println(dis.readUTF());
-                                String fileName=scan.nextLine();
-                                dos.writeUTF(fileName);
-                                System.out.println(dis.readUTF());
-                                System.out.println(dis.readUTF());
-                                loop=false;
-                                break;
-                            case "2":
-                                System.out.println(dis.readUTF());
-                                String contents=scan.nextLine();
-                                dos.writeUTF(contents);
-                                loop=false;
-                                break;
-                            case "3":
-                                System.out.println(dis.readUTF());
-                                loop=false;
-                                break;
-                            case "4":
-                                sock.close();
-                                loop=false;
-                                break;
-                            default:
-                                break;
+
+                                String idpw = scan.nextLine();
+                                dos.writeUTF(idpw);
+                                login = dis.readUTF();
+                                trial++;
+
+                            }
+                            if (trial > 2) {
+                                System.out.println("Terminate");
+                            } else {
+//                        System.out.println(dis.readUTF());
+//                        String pw=scan.nextLine();
+//                        dos.writeUTF(pw);
+//                        //file access phase:
+                                boolean down = true;
+                                while (down) {
+                                    System.out.println(dis.readUTF());
+
+                                    String choice = scan.nextLine();
+                                    dos.writeUTF(choice);
+
+                                    switch (choice) {
+                                        case "1":
+                                            System.out.println(dis.readUTF());
+                                            String fileName = scan.nextLine();
+                                            dos.writeUTF(fileName);
+
+                                            if (dis.readUTF().equals("FOUND")) {
+                                                dos.writeUTF("READY");
+                                                System.out.println(dis.readUTF());
+                                                dos.writeUTF("DOWNLOADCOMPLETED");
+                                                down = true;
+                                            } else {
+                                                down = true;
+                                            }
+
+                                            break;
+                                        case "2":
+                                            System.out.println(dis.readUTF());
+                                            String contents = scan.nextLine();
+                                            while (contents != null) {
+
+                                                dos.writeUTF(contents);
+                                                contents = scan.nextLine();
+                                            }
+                                          
+                                            break;
+                                        case "3":
+                                            System.out.println(dis.readUTF());
+                                          
+                                            break;
+                                        case "4":
+                                            sock.close();
+                                            loop = false;
+                                            break;
+                                        default:
+                                            break;
+                                    }
+
+                                    
+                                }
+                            }
                         }
-                    
-                        break;
-                    
+
                     case "3":
                         sock.close();
-                        loop=false;
+                        loop = false;
                         break;
                     default:
                         break;
-     
+
                 }
 
-           }
-            
-            dis.close();
-            dos.close();
-            
-            
-          
+            }
+
+            //dis.close();
+            //dos.close();
         } catch (Exception e) {
+            sock.close();
             e.printStackTrace();
         }
 
